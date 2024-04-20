@@ -7,18 +7,13 @@
 <h4 align="justify">
       In the Atlantico department - Colombia, there are many housing projects, where people of all classes can get their own home, 
       but the information is not centered  in one company, each company has its information in own website, and to see webside by website is boring.
-      Knowing that, I investigated the main companies that are developing housing projects in Atlantico and start to scrap the data like name, type, description, area of apartment and ect.
-      After that, to store that information in a Excel file to watch the information to compare  project by project like datasheet.
+      Knowing that, I investigated the main companies that are developing housing projects in Atlantico and start to scrap the data like name, type, 
+	description, area of apartment and ect. After that, to store that information in a Excel file to watch the information to compare  project 
+	by project like datasheet. < /br>
+     This project work together with the project <a href="https://github.com/kaacuna20/Website-house-project-searching-">"Website house project searching"</a>, to get that 
+      information to enable fill the database with each data project.
 </h4> 
 
-### Features of project
-
-- Let view housing projects in Atlantico - Colombia, specifically in Puerto Colombia, Barranquilla and Soledad city, filter the search by construction company, location and city;
-- User can register and login section, personalize their profiles and save their favorites projects on their accounts;
-- got the option to change their passwords or get a new password in section forgot password where the new password is sent to their email;
-- Each project page there is a comment section where each user can leave their opinions about the project;
-- There is a section for developer where can read the documentation about the API, whatching the routes to make the requests, the differents responses and restrictions;
-- Developers can generate their apikey to be allowed making requests;
 
 ### Instalation packages
 
