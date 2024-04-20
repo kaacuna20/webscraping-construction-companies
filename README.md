@@ -18,6 +18,13 @@
       information to enable fill the database with each data project.
 </h4> 
 
+### Virtual Enviroment
+
+`$ python -m virtualenv venv`
+
+#### Execute virtualenv:
+
+`$ .\venv\Scripts\activate`
 
 ### Instalation packages
 
