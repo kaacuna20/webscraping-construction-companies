@@ -6,10 +6,14 @@
 
 <h4 align="justify">
       In the Atlantico department - Colombia, there are many housing projects, where people of all classes can get their own home, 
-      but the information is not centered  in one company, each company has its information in own website, and to see webside by website is boring.
+      but the information is not centered  in one company, each company has its information in own website, and to see webside by website is boring. 
+</h4> 
+<h4 align="justify">
       Knowing that, I investigated the main companies that are developing housing projects in Atlantico and start to scrap the data like name, type, 
 	description, area of apartment and ect. After that, to store that information in a Excel file to watch the information to compare  project 
-	by project like datasheet. < /br>
+	by project like datasheet. 
+</h4> 
+<h4 align="justify">
      This project work together with the project <a href="https://github.com/kaacuna20/Website-house-project-searching-">"Website house project searching"</a>, to get that 
       information to enable fill the database with each data project.
 </h4> 
