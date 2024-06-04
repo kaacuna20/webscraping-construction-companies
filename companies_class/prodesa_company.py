@@ -1,88 +1,113 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
-import requests
+from track_logs.logs import track_logs
+import time
 
-# BY BARRANQUILLA
-# list endpoints of projects from Barranquilla
+def fetch_html_with_selenium(url: str) -> str:
+    """
+    To handle pages that rely on JavaScript, you need 
+    can execute JavaScript with Selenium to fetch and parse the HTML content:
+
+    """
+    # Setup Chrome options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run headless Chrome
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+
+    # Setup Chrome driver
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+
+    # Fetch the page
+    driver.get(url)
+    time.sleep(4)  # Wait for JavaScript to load content (adjust as needed)
+
+    # Get the HTML content
+    html_content = driver.page_source
+    driver.quit()
+    return html_content
+
+# list endpoints of projects
+# this order of this list is the same order in other list's acording the project
 list_endpoint = [
-    "alameda-del-rio/pardela",
-    "arreboles",
-    "villas-de-san-pablo/brisas-de-san-pablo"
+    "proyecto-vivienda-armonia",
+    "proyecto-vivienda-caoba",
+    "proyecto-vivienda-brisas-san-pablo",
+    "proyecto-vivienda-pardela"
 ]
 
-# list logos of projects from Barranquilla
 list_logos = [
-    "https://alamedadelrio.co/wp-content/uploads/2021/10/PARDELA-200x67.png",
-    "https://www.estrenarvivienda.com/arreboles/barranquilla",
-    "https://villasdesanpablo.com/wp-content/uploads/2022/10/brisas-de-san-pablo-logo.png"
+    "https://viviendas.lahipotecaria.com/colombia/wp-content/uploads/2020/12/prodesa.png",
+    "https://www.estrenarvivienda.com/sites/default/files/node-project/field-project-logo/logos_proyectos_prodesa-1-44_page-0006.jpg",
+    "https://villasdesanpablo.com/wp-content/uploads/2022/10/brisas-de-san-pablo-logo.png",
+    "https://alamedadelrio.co/wp-content/uploads/2021/10/PARDELA-200x67.png"
 ]
 
-# list locations of projects from Barranquilla
 list_locations = [
-    "Alameda del rio",
+    "ciudad de los sueños",
+    "san antonio",
+    "caribe verde",
     "Costa del Río",
-    "caribe verde"
 ]
 
-# BY SOLEDAD
-# list endpoints of projects from Soledad
-list_endpoint_s = [
-    "san-antonio/caboa/apartamento-50m2/",
-    "ciudad-de-los-suenos/armonia/"
+list_type = [
+    "VIS",
+    "VIP",
+    "VIP",
+    "NO VIS"
 ]
 
-# list logos of projects from Soledad
-list_logos_s = [
-    "https://www.estrenarvivienda.com/caoba/soledad",
-    "https://www.google.es/url?sa=i&url=https%3A%2F%2Fprodesa.com%2Fproyecto-de-vivienda%2Fsoledad%2Fciudad-de-los-suenos%2Farmonia%2F&psig=AOvVaw1D88vrH-1BF3SAPpqMIyZ7&ust=1713489679584000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCMCR0dHMyoUDFQAAAAAdAAAAABAD",
-]
-
-# list locations of projects from Soledad
-list_locations_s = [
-    "San Antonio",
-    "Ciudad de los Sueños"
+list_url_map = [
+    "https://www.google.com/maps/dir/?api=1&destination=10.902,-74.807",
+    "https://www.google.com/maps/dir/?api=1&destination=10.8790246,-74.8086267",
+    "https://www.google.com/maps/dir/?api=1&destination=10.978,-74.837",
+    "https://prodesa.com/internaproyecto/proyecto-vivienda-pardela"
 ]
 
 
 class ProdesaProject:
-
     def __init__(self):
-        self.all_projects_by_prodesa_barranquilla = []
-        self.all_projects_by_prodesa_soledad = []
-        self.main_endpoint = "https://prodesa.com/proyecto-de-vivienda/barranquilla/"
-        self.main_endpoint_s = "https://prodesa.com/proyecto-de-vivienda/soledad/"
+        self.all_projects_by_prodesa = []
+        self.main_endpoint = "https://prodesa.com/internaproyecto/"
 
-    def get_project_by_barranquilla(self) -> list:
+    def get_projects(self) -> list:
         index = 0
         for project in list_endpoint:
             # Get the url to start scraping
-            response = requests.get(f"{self.main_endpoint}{project}")
 
-            soup = BeautifulSoup(response.text, "html.parser")
+            html_content = fetch_html_with_selenium(url=f"{self.main_endpoint}{project}")
+
+            # Parse with BeautifulSoup
+            soup = BeautifulSoup(html_content, "html.parser")
+
             # get url of website
             url_website = f"{self.main_endpoint}{project}"
+            track_logs(url_website)
             # get the address of salesroom
-            address = soup.find(name="span", class_="project-header__location-item").text.split(":")[1]
+            address = soup.find(name="p", class_="text_p__bLx50 mt-0 mb-0 color-gris text_textosApis__dF4dc").text
             # get the name of project
-            name = soup.find(name="h1", class_="inner-header__keyword inner-header__keyword--small white").text
-            # get if project is VIS, VIP or NO VIS
-            type = str(soup.find(name="h1", class_="inner-header__keyword inner-header__keyword--small white").select_one("span")).split('">')[0].split("--")[1]
+            name = soup.find(name="h1", class_="text_h1__tRi4t roboto text-start color-gris text_h2__hoAPK").text
             # get the city
-            city = soup.find(name="span", class_="project-header__location-item").text.split("S")[0].strip()
+            city = soup.find(name="div", class_="BannerProyecto_stylegrupo__pE4sL pb-3").select_one("p").text
             # get the price of project in COP
-            price = soup.find(name="h2", class_="project-header__price").text.split("$")[1].split("*")[0]
+            price = soup.find(name="h2", class_="text_h2__hoAPK roboto text-start color-naranja mb-0").text.split("/")[0].strip().split("Desde")[1].split("*")[0].replace(".", "")
             # get a summary about the project
-            description = soup.find(name="p", class_="f-size18 rb-light").text.split("*")[0]
+            description = soup.find(name="p", class_="text_p__bLx50 color-gris text_textosApis__dF4dc").select_one("span p").text
             # get the area in m2 of apartment
-            area = soup.find(name="span", class_="icon-group__item").select_one("h5").text.split("desde")[1].split("m")[0]
+            area = soup.find(name="h2", class_="text_h2__hoAPK roboto text-start color-naranja mb-0").text.split("/")[1].strip().split("Desde")[1].split("m2")[0].replace(",", ".")
             # get the src of background of project
-            url_img = soup.find(name="section", class_="main-picture").get("style").split("url('")[1].split("')")[0]
-            # get the contact to ask information
-            contact = soup.find_all(name="h4", class_="office__address")[1].text.split(":")[1].split("+57")[1].replace(" ", "")
-            # get the url location in google map
             try:
-                url_map = soup.find_all(name="a", class_="btn btn-theme-2 btn-theme-2--large btn-theme-2--iconL-large btn-theme-2--f-location map-card__btn")[1].get("href")
-            except IndexError:
-                url_map = soup.find(name="a", class_="btn btn-theme-2 btn-theme-2--large btn-theme-2--iconL-large btn-theme-2--f-location map-card__btn").get("href")
+                url_img = soup.find(name="img", class_="w-100 h_auto_img w-100 BannerProyecto_mx_height__yJC_i BannerProyecto_border_img__xGO4J").get("src")
+            except AttributeError:
+                url_img = "no found"
+                
+            contact = "(601) 3139040/ (601) 3139040"
 
             # make the dictionary with each item scraped
             dict_by_project = {
@@ -92,95 +117,18 @@ class ProdesaProject:
                 "city": city,
                 "company": "Prodesa",
                 "address": address,
-                "url_map": url_map,
+                "url_map": list_url_map[index],
                 "contact": contact,
                 "area": area,
                 "price": price,
-                "type": type,
+                "type": list_type[index],
                 "img_url": url_img,
                 "description": description,
                 "url_website": url_website
             }
             index += 1
-            self.all_projects_by_prodesa_barranquilla.append(dict_by_project)
-        return self.all_projects_by_prodesa_barranquilla
-
-    def get_project_by_soledad(self) -> list:
-        index = 0
-        for project in list_endpoint_s:
-            # Get the url to start scraping
-            response_s = requests.get(f"{self.main_endpoint_s}{project}")
-
-            soup = BeautifulSoup(response_s.text, "html.parser")
-            # get url of website
-            url_website = f"{self.main_endpoint_s}{project}"
-            # get the address of salesroom
-            try:
-                address = soup.find(name="span", class_="project-header__location-item").text.split(":")[1]
-            except IndexError:
-                address = soup.find(name="span", class_="project-header__location-item").text
-            # get the name of project
-            try:
-                name = soup.find(name="h1",
-                                 class_="inner-header__keyword inner-header__keyword--small white rb-light").text
-            except AttributeError:
-                name = soup.find(name="h1", class_="inner-header__keyword inner-header__keyword--small white").text.split("-")[0]
-            # get if project is VIS, VIP or NO VIS
-            try:
-                type = str(soup.find(name="h1",
-                                     class_="inner-header__keyword inner-header__keyword--small white rb-light").select_one(
-                    "span")).split('">')[0].split("--")[1]
-            except AttributeError:
-                type = \
-                str(soup.find(name="h1", class_="inner-header__keyword inner-header__keyword--small white").select_one(
-                    "span")).split('">')[0].split("--")[1]
-            # get the city
-            city = soup.find(name="span", class_="project-header__location-item").text.split("S")[0].strip()
-            # get the price of project in COP
-            price = soup.find(name="h2", class_="project-header__price").text.split("$")[1].split("*")[0]
-            # get a summary about the project
-            description = soup.find(name="p", class_="f-size18 rb-light").text.split("*")[0]
-            # get the area in m2 of apartment
-            try:
-                area = \
-                soup.find(name="span", class_="icon-group__item").select_one("h5").text.split("desde")[1].split("m")[0]
-            except AttributeError:
-                area = soup.find(name="h3", class_="icon-title orange mb10").text
-            # get the src of background of project
-            url_img = soup.find(name="section", class_="main-picture").get("style").split("url('")[1].split("')")[0]
-            # get the contact to ask information
-            contact = soup.find_all(name="h4", class_="office__address")[1].text.split(":")[1].split("+57")[1].replace(
-                " ", "")
-            # get the url location in google map
-            try:
-                url_map = soup.find_all(name="a",
-                                        class_="btn btn-theme-2 btn-theme-2--large btn-theme-2--iconL-large btn-theme-2--f-location map-card__btn")[
-                    1].get("href")
-            except IndexError:
-                url_map = soup.find(name="a",
-                                    class_="btn btn-theme-2 btn-theme-2--large btn-theme-2--iconL-large btn-theme-2--f-location map-card__btn").get(
-                    "href")
-
-            # make the dictionary with each item scraped
-            dict_by_project_sol = {
-                "name": name,
-                "logo": list_logos_s[index],
-                "location": list_locations_s[index],
-                "city": city,
-                "company": "Prodesa",
-                "address": address,
-                "url_map": url_map,
-                "contact": contact,
-                "area": area,
-                "price": price,
-                "type": type,
-                "img_url": url_img,
-                "description": description,
-                "url_website": url_website
-            }
-            index += 1
-            self.all_projects_by_prodesa_soledad.append(dict_by_project_sol)
-        return self.all_projects_by_prodesa_soledad
+            self.all_projects_by_prodesa.append(dict_by_project)
+        return self.all_projects_by_prodesa
 
 
 

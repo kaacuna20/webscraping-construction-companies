@@ -1,6 +1,25 @@
 from bs4 import BeautifulSoup
 import requests
 import urllib3
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from track_logs.logs import track_logs
+
+# Configure Chrome options
+chrome_options = Options()
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_argument('--disable-gpu')
+
+# Setup ChromeDriver
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+
 
 urllib3.disable_warnings()
 
@@ -8,7 +27,6 @@ urllib3.disable_warnings()
 list_endpoint = [
     "amatista-alameda-del-rio",
     "bambu-san-antonio",
-    "barranquero-alameda-del-rio",
     "brisas-del-rio-rio-alto",
     "ceiba-san-antonio",
     "corozo-san-antonio",
@@ -34,12 +52,13 @@ class AmariloProject:
         for project in list_endpoint:
             # Get the url to start scraping
             response = requests.get(f"{self.main_endpoint}{project}", verify=False)
-
+            track_logs(f"{self.main_endpoint}{project}")
+            
             soup = BeautifulSoup(response.text, "html.parser")
             # get url of website
             url_website = f"{self.main_endpoint}{project}"
             # get the name of project
-            name = soup.find(name="div", class_="title").select_one("h1").text.split(",")[1].split("-")[0]
+            name = project.replace("-", " ")
             # get the src of logo
             logo = soup.find_all(name="div", class_="logo")[1].select_one("img").get("src")
             # get the location of project
@@ -53,7 +72,9 @@ class AmariloProject:
             try:
                 price = int(soup.find(name="strong", class_="jumbo").text.split(" ")[0])*1300000
             except ValueError:
-                price = soup.find(name="strong", class_="jumbo").text.split("$")[1].replace(",", ".")
+                driver.get(url_website)
+                driver.implicitly_wait(2)
+                price = driver.find_element(By.CSS_SELECTOR, "strong.jumbo").text.split("$")[1].split("*")[0].replace(".", "")
             # get the src of background of project
             img_url = soup.find(name="div", class_="carousel-gallery-item").select_one("img").get("src")
             # get the url location in google map

@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+from track_logs.logs import track_logs
 
 # lists of endpoints
 list_endpoint = [
@@ -10,9 +11,9 @@ list_endpoint = [
 
 # lists of url_map
 list_url_map = [
-    "url_map = https://www.google.com/maps/place/Senza+Apartamentos+Lote/@10.922718,-74.828026,15z/data=!4m6!3m5!1s0x8ef5d3be301a94ad:0xa1b1e72b8aec2340!8m2!3d10.9227177!4d-74.828026!16s%2Fg%2F11t2zd0hv2?hl=es&entry=ttu",
-    "url_map = https://www.google.com/maps/place/B%C3%A1varo+Apartamentos+Conaltura/@10.9267204,-74.8284702,17z/data=!3m1!4b1!4m6!3m5!1s0x8ef5d31be062bd25:0xed2c7fea94021b94!8m2!3d10.9267151!4d-74.8258953!16s%2Fg%2F11s38tv4z0?hl=es&entry=ttu",
-    "url_map = https://www.google.com/maps/place/Catara+-+Ciudad+Mallorqu%C3%ADn/@11.0247919,-74.8479199,17z/data=!3m1!4b1!4m6!3m5!1s0x8ef42d03100f5f4f:0x7ae856a1ff1e4f4d!8m2!3d11.0247866!4d-74.845345!16s%2Fg%2F11t9hhw834?hl=es&entry=ttu"
+    "https://www.google.com/maps/place/Senza+Apartamentos+Lote/@10.922718,-74.828026,15z/data=!4m6!3m5!1s0x8ef5d3be301a94ad:0xa1b1e72b8aec2340!8m2!3d10.9227177!4d-74.828026!16s%2Fg%2F11t2zd0hv2?hl=es&entry=ttu",
+    "https://www.google.com/maps/place/B%C3%A1varo+Apartamentos+Conaltura/@10.9267204,-74.8284702,17z/data=!3m1!4b1!4m6!3m5!1s0x8ef5d31be062bd25:0xed2c7fea94021b94!8m2!3d10.9267151!4d-74.8258953!16s%2Fg%2F11s38tv4z0?hl=es&entry=ttu",
+    "https://www.google.com/maps/place/Catara+-+Ciudad+Mallorqu%C3%ADn/@11.0247919,-74.8479199,17z/data=!3m1!4b1!4m6!3m5!1s0x8ef42d03100f5f4f:0x7ae856a1ff1e4f4d!8m2!3d11.0247866!4d-74.845345!16s%2Fg%2F11t9hhw834?hl=es&entry=ttu"
 ]
 
 
@@ -27,6 +28,7 @@ class ConalturaProject:
         for project in list_endpoint:
             # Get the url to start scraping
             response = requests.get(f"{self.main_endpoint}{project}")
+            track_logs(f"{self.main_endpoint}{project}")
 
             soup = BeautifulSoup(response.text, "html.parser")
             # get url of website
@@ -38,9 +40,9 @@ class ConalturaProject:
             # get the location of project
             location = soup.find(name="h4", class_="text-white font-weight-bold").text.title()
             # get the price of project in COP
-            price = soup.find(name="h2", class_="fz-100 font-weight-bold").text.split("$")[1].replace("'", ".")
+            price = soup.find(name="h2", class_="fz-100 font-weight-bold").text.split("$")[1].replace(".", "").replace("'", "")
             # get the area in m2 of apartment
-            area = soup.find(name="h5", class_="text-conaltura-dark font-weight-bold descripciondetalle").text.split(" ")[0]
+            area = soup.find(name="h5", class_="text-conaltura-dark font-weight-bold descripciondetalle").text.split("m")[0].strip()
             # get a summary about the project
             description = soup.find(name="p", class_="text-conaltura-dark text-justify descripcion mb-5").text.replace("Ã¡", "a").replace("Ã³", "a").replace("Ãº", "u")
             # get the contact to ask information

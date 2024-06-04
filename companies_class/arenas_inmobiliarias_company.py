@@ -1,13 +1,15 @@
 from bs4 import BeautifulSoup
 import requests
+from track_logs.logs import track_logs
 
 # list that content the endpoints, types, city and location of each project
 list_endpoint = [
     # [endpoint, type, city, location]
-    ["torre-44-apartamentos/", "VIS", "Barranquilla", "Plaza de la Paz"],
+    ["proyecto-almeria/", "VIS", "Barranquilla", "Andalucía"],
     ["las-acacias-casas/", "VIS", "Soledad", "P.R. Nuestro Atlántico"],
-    ["ibaia-apartamentos/", "no found", "Barranquilla", "Ciudad Jardín"],
-    ["papaya-apartamentos/", "VIS", "Barranquilla", "San Francisco"],
+    ["ibaia-apartamentos/", "NO VIS", "Barranquilla", "Ciudad Jardín"],
+    ["acuarela-del-rio/", "NO VIS", "Barranquilla", "Malecón del río"],
+    ["guayacanes-apartamentos/", "VIS", "Soledad", "P.R. Nuestro Atlántico"],
 ]
 
 
@@ -21,18 +23,19 @@ class ArenasProjects:
         for project in list_endpoint:
             # Get the url to start scraping
             response_b = requests.get(f"{self.main_endpoint}{project[0]}")
-
+            track_logs(f"{self.main_endpoint}{project[0]}")
+            print(f"{self.main_endpoint}{project[0]}")
             soup_b = BeautifulSoup(response_b.text, "html.parser")
             # get url of website
             website = f"{self.main_endpoint}{project[0]}"
             # get the name of project
-            name = soup_b.find(name="span", class_="elementor-heading-title elementor-size-default").text.split("Apa")[0]
+            name = soup_b.find(name="h1", class_="elementor-heading-title elementor-size-default").text
             # get the src of logo
             logo = soup_b.find(name="div", class_="elementor-widget-container").select_one("img").get("src")
             # get the location of project from list 'list_endpoint'
             location = project[3]
             # get the area in m2 of apartment
-            area = soup_b.find(name="span", class_="elementor-icon-list-text").text
+            area = soup_b.find(name="span", class_="elementor-icon-list-text").text.split(",")[0]
             # get the city of project from list 'list_endpoint'
             city = project[2]
             # get the type of project from list 'list_endpoint'
@@ -52,7 +55,7 @@ class ArenasProjects:
             description = soup_b.find(name="div", class_="elementor-element elementor-element-c3c4bd2 elementor-widget elementor-widget-theme-post-content").select_one("p").text
             # get the price of project in COP
             try:
-                price = soup_b.find(name="div", class_="elementor-element elementor-element-14ee783 elementor-widget elementor-widget-heading").select_one("span").text.split("$")[1]
+                price = soup_b.find(name="div", class_="elementor-element elementor-element-14ee783 elementor-widget elementor-widget-heading").select_one("span").text.split("$")[1].replace(".", "")
             except IndexError:
                 price = int(soup_b.find(name="div", class_="elementor-element elementor-element-14ee783 elementor-widget elementor-widget-heading").select_one("span").text.split("S")[0])*1300000
 

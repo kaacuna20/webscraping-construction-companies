@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+from track_logs.logs import track_logs
 
 # list that content the endpoints, url_img and url_map
 list_endpoint = [
@@ -61,6 +62,8 @@ class BolivarProjects:
         for project in list_endpoint:
             # Get the url to start scraping
             response = requests.get(f"{self.main_endpoint}{project[0]}")
+            
+            track_logs(f"{self.main_endpoint}{project[0]}")
 
             soup = BeautifulSoup(response.text, "html.parser")
             # get url of website
@@ -75,6 +78,8 @@ class BolivarProjects:
             area = soup.find_all(name="div", class_="row cuadros justify-content-center")[0].select_one("p").text.split("m")[0]
             # get the price of project in COP
             price = soup.find_all(name="div", class_="row cuadros justify-content-center")[0].select("p")[4].text
+            if int(price) < 1000:
+                price = int(price)*1300000
             # get  the contact to ask information
             contact = "(+57) 3103157550"
             # get the city of project
@@ -85,9 +90,13 @@ class BolivarProjects:
             try:
                 address = soup.find_all(name="div", class_="col-md-6")[-4].select_one("article").text.split("Dirección")[1].strip()
             except IndexError:
-                address = "verify"
+                try:
+                    address = soup.find_all(name="div", class_="col-md-6")[-5].select_one("article").text.split("Dirección")[1].strip() #soup.find_all(name="div", class_="col-md-6")[-6])
+                except Exception:
+                    address = "no direction"
             except AttributeError:
                 address = "no direction"
+                
             # get the url location of project from list 'list_endpoint'
             url_map = project[2]
             # get the src of project from list 'list_endpoint'

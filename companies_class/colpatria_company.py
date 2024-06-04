@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+from track_logs.logs import track_logs
 
 # list of endpoint of each project
 list_endpoint = [
@@ -23,6 +24,7 @@ class ColpatriaProject:
         for project in list_endpoint:
             # Get the url to start scraping
             response = requests.get(f"{self.main_endpint}{project}")
+            track_logs(f"{self.main_endpint}{project}")
 
             soup = BeautifulSoup(response.text, "html.parser")
             # get url of website
@@ -37,7 +39,7 @@ class ColpatriaProject:
             except AttributeError:
                 type = "NO VIS"
             # get the price of project in COP
-            price = soup.find(name="span", class_="map_price_cop activo").text.split("$")[1].strip("*")
+            price = soup.find(name="span", class_="map_price_cop activo").text.split("$")[1].strip("*").replace(".", "")
             # get the area in m2 of apartment
             area = soup.find(name="div", class_="box-txt-right fadeInRight area-proyect").text.split("desde")[1].strip("m²").replace(",", ".")
             # get the src of background of project
@@ -49,7 +51,7 @@ class ColpatriaProject:
             # get the location of project
             location = soup.find(name="div", class_="dir-proyect sector-proyect sector-dk").text.split(":")[1]
             # get a summary about the project
-            description = soup.find(name="span", class_="parrafo_desta").text
+            description = soup.find(name="span", class_="content-des-proyect").text
             # get the contact to ask information
             contact = "+57 321 392 3797 - 321 345 5672 - 321 452 1163"
 
