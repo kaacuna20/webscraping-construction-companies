@@ -10,6 +10,7 @@ from companies_class.marval_company import MarvalProject
 from companies_class.others_company import OtherProjects
 from companies_class.arenas_inmobiliarias_company import ArenasProjects
 from track_logs.logs import track_logs
+import asyncio
 
 
 def create_write_excelfile():
@@ -52,7 +53,7 @@ def create_write_excelfile():
     worksheet = workbook["amarilo"]
     worksheet.append(first_row)
     row_cell = 2
-    for record_project in amarilo_projects.get_projects():
+    for record_project in asyncio.run(amarilo_projects.get_projects()):
         colum_cell = 1
         for data in record_project:
             try:
@@ -99,7 +100,7 @@ def create_write_excelfile():
     worksheet2 = workbook["arenas_inmobiliaria"]
     worksheet2.append(first_row)
     row_cell = 2
-    for record_project in arenas_inmobiliarias_projects.get_projects():
+    for record_project in asyncio.run(arenas_inmobiliarias_projects.get_projects()):
         colum_cell = 1
         for data in record_project:
             try:
@@ -115,7 +116,7 @@ def create_write_excelfile():
     worksheet3 = workbook["bolivar"]
     worksheet3.append(first_row)
     row_cell = 2
-    for record_project in bolivar_projects.get_projects():
+    for record_project in asyncio.run(bolivar_projects.get_projects()):
         colum_cell = 1
         for data in record_project:
             try:
@@ -131,7 +132,7 @@ def create_write_excelfile():
     worksheet4 = workbook["colpatria"]
     worksheet4.append(first_row)
     row_cell = 2
-    for record_project in colpatria_projects.get_projects():
+    for record_project in asyncio.run(colpatria_projects.get_projects()):
         colum_cell = 1
         for data in record_project:
             try:
@@ -147,7 +148,7 @@ def create_write_excelfile():
     worksheet5 = workbook["conaltura"]
     worksheet5.append(first_row)
     row_cell = 2
-    for record_project in conaltura_projects.get_projects():
+    for record_project in asyncio.run(conaltura_projects.get_projects()):
         colum_cell = 1
         for data in record_project:
             try:
