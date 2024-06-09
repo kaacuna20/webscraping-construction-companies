@@ -105,7 +105,7 @@ python driver_selenium.py
 ### Posting Data
 1. Run the POST request container:
 ```ini
-docker run --name post-request --network housefinder_default -v /path/to/local/post_projects/logs:/app/logs post-projects
+docker run --name post-request --network house_finder_web -v /path/to/local/post_projects/logs:/app/logs post-projects
 ```
 This will read the corrected Excel file post_projects/overwrite_projects.xlsx and send POST requests to the API.
 ## Details
