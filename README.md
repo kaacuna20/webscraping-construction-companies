@@ -21,18 +21,21 @@
 This project is designed to scrape housing project data from various real estate company websites and process it into a structured format. The data is then saved into Excel files and used to make POST requests to an API. The entire process is Dockerized for easier setup and deployment.t.
 
 ## Table of Contents
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Configuration](#configuration)
-- [Services](#services)
-  - [webapp_house_finder](#webapp_house_finder)
-  - [api_house_finder](#api_house_finder)
-  - [nginx](#nginx)
-  - [postgresql_db](#postgresql_db)
-- [Networks](#networks)
-- [Volumes](#volumes)
-- [Running the Application](#running-the-application)
-- [Diagram](#diagram)
+- [Project Structure](#Project_Structure)
+  - [Prerequisites](#Prerequisites)
+  - [Environment Variables](#Environment_Variables)
+  - [Building Docker Images](#Building_Docker_Images)
+- [Running the Project](#Running_the_Project)
+  - [Scraping Data](#Scraping_Data)
+  - [Downloading Images](#Downloading_Images)
+  - [Posting Data](#Posting_Data)
+- [Details](#Details)
+  - [Scraping Companies](#Scraping_Companies)
+  - [Downloading Images](#Downloading_Images)
+  - [Posting Data](#Posting_Data)
+- [Docker Setup](#Docker_Setup)
+  - [Main Dockerfile](#Main_Dockerfile)
+  - [Running with Docker Compose](#Running_with_Docker_Compose)
 
 ## Project Structure
 ```ini
