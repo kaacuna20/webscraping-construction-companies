@@ -18,11 +18,11 @@ list_item = ["name", "logo", "location", "city", "company", "address", "url_map"
 # get a valid apikey and the endpoint to make the 'POST' request
 API_KEY = os.getenv("PUBLIC_API_KEY")
 headers = {
-    "api_key": API_KEY
+    "Api-key": API_KEY
 }
 
 # This is the server, this can change
-URL = "http://fastapi_house_finder:8000/api/v1/add-project"
+URL = "http://localhost/api/v1/add-project"
 
 # create a dictionary of parameters according to API Documentation
 parameters = {}

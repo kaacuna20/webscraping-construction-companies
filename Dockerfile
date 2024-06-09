@@ -6,7 +6,6 @@ WORKDIR /app
 RUN mkdir -p /app/saved_data
 
 
-
 COPY requirements.txt .
 
 COPY . .
