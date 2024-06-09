@@ -21,21 +21,21 @@
 This project is designed to scrape housing project data from various real estate company websites and process it into a structured format. The data is then saved into Excel files and used to make POST requests to an API. The entire process is Dockerized for easier setup and deployment.t.
 
 ## Table of Contents
-- [Project Structure](#Project_Structure)
+- [Project Structure](#Project-Structure)
   - [Prerequisites](#Prerequisites)
-  - [Environment Variables](#Environment_Variables)
-  - [Building Docker Images](#Building_Docker_Images)
-- [Running the Project](#Running_the_Project)
-  - [Scraping Data](#Scraping_Data)
-  - [Downloading Images](#Downloading_Images)
-  - [Posting Data](#Posting_Data)
+  - [Environment Variables](#Environment-Variables)
+  - [Building Docker Images](#Building-Docker-Images)
+- [Running the Project](#Running-the-Project)
+  - [Scraping Data](#Scraping-Data)
+  - [Downloading Images](#Downloading-Images)
+  - [Posting Data](#Posting-Data)
 - [Details](#Details)
-  - [Scraping Companies](#Scraping_Companies)
-  - [Downloading Images](#Downloading_Images)
-  - [Posting Data](#Posting_Data)
-- [Docker Setup](#Docker_Setup)
-  - [Main Dockerfile](#Main_Dockerfile)
-  - [Running with Docker Compose](#Running_with_Docker_Compose)
+  - [Scraping Companies](#Scraping-Companies)
+  - [Downloading Images](#Downloading-Images)
+  - [Posting Data](#Posting-Data)
+- [Docker Setup](#Docker-Setup)
+  - [Main Dockerfile](#Main-Dockerfile)
+  - [Running with Docker Compose](#Running-with-Docker-Compose)
 
 ## Project Structure
 ```ini
