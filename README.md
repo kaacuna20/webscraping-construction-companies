@@ -62,8 +62,8 @@ Website-house-project-searching/
 │     ├── projects.xlsx
 │     ├── log.log
 │     └── static/images/img-projects
-│			├── background
-│                       └── logos
+│			├── background/
+│                       └── logos/
 ├── Dockerfile
 ├── .dockerignore
 ├── dataexcel.py
