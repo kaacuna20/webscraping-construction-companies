@@ -18,71 +18,150 @@
       information to enable fill the database with each data project.
 </h4> 
 
-### Virtual Enviroment
+This project is designed to scrape housing project data from various real estate company websites and process it into a structured format. The data is then saved into Excel files and used to make POST requests to an API. The entire process is Dockerized for easier setup and deployment.t.
 
-`$ python -m virtualenv venv`
+## Table of Contents
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
+- [Services](#services)
+  - [webapp_house_finder](#webapp_house_finder)
+  - [api_house_finder](#api_house_finder)
+  - [nginx](#nginx)
+  - [postgresql_db](#postgresql_db)
+- [Networks](#networks)
+- [Volumes](#volumes)
+- [Running the Application](#running-the-application)
+- [Diagram](#diagram)
 
-#### Execute virtualenv:
+## Project Structure
+```ini
+Website-house-project-searching/
+├── companies_class/
+│     ├── __init__.py
+│     ├── amarilo_company.py
+│     ├── arenas_inmobiliarias_company.py
+│     ├── bolivar_company.py
+│     ├── colpatria_company.py
+│     ├── conaltura_company.py
+│     ├── marval_company.py
+│     ├── others_company.py
+│     ├── prodesa_company.py
+├── post_projects/
+│     ├── Dockerfile
+│     ├── post_project_api.py
+│     ├── overwrite_projects.xlsx
+│     ├── requirements.txt
+│     ├── .env
+│     ├── track_logs/
+│          ├── logs.py
+├── saved_data
+│     ├── projects.xlsx
+│     ├── log.log
+│     └── static/images/img-projects
+│			├── background
+│                       └── logos
+├── Dockerfile
+├── .dockerignore
+├── dataexcel.py
+├── driver_selenium.py
+├── main.py
+├── requirements.txt
+```
+## Setup
+### Prerequisites
+Ensure you have Docker installed on your system. For local development, you also need Python 3.11 and pip.
+### Environment Variables
+Create a `.env` file in the post_projects/ directory with the following content:
+```ini
+PUBLIC_API_KEY=your_api_key_here
+```
+### Building Docker Images
+1. Build the main scraping image:
+```ini
+docker build -t web-scraping .
+```
+2. Build the post request image:
+```ini
+cd post_projects
+docker build -t post-projects .
+cd ..
+```
+## Running the Project
+### Scraping Data
+1. Run the scraping container:
+```ini
+docker run --name web-scraping -v /path/to/local/saved_data:/app/saved_data web-scraping
+```
+This will scrape the data and save it to the saved_data/projects.xlsx file in your local directory.
+### Downloading Images
+1. Execute the Selenium script to download images:
+```ini
+python driver_selenium.py
+```
+### Posting Data
+1. Run the POST request container:
+```ini
+docker run --name post-request --network housefinder_default -v /path/to/local/post_projects/logs:/app/logs post-projects
+```
+This will read the corrected Excel file post_projects/overwrite_projects.xlsx and send POST requests to the API.
+## Details
+### Scraping Companies
+Each company has its own class in the `companies_class` directory, which handles the specifics of scraping data from their respective websites. Each class implements a method that returns a list of dictionaries, each dictionary containing data for a housing project.
 
-#### On Windows type:
-`$ venv\Scripts\activate`
+### Saving Data
+The `dataexcel.py` script gathers the data from all the company classes and writes it to an Excel file, saved_data/projects.xlsx.
 
-#### On MacOS type:
-`$ source venv/Scripts/activate`
+### Downloading Images
+The `driver_selenium.py` script uses Selenium to download images associated with each project (e.g., logos and background images) and saves them in the saved_data/static/images/img-projects directory.
 
-### Instalation packages
+### Posting Data
+The `post_project_api.py` script reads data from the `post_projects/overwrite_projects.xlsx` file and sends it as POST requests to the specified API endpoint.
 
-* `$ pip install requests`
-* `$ pip install bs4`
-* `$ pip install Selenium`
-* `$ pip install python-dotenv`
-* `$ pip install Openpyxl`
+## Docker Setup
+### Main Dockerfile
+This Dockerfile sets up the environment for scraping and saving data.
+```ini
+FROM python:3.11
 
-### Goal
-<p align="justify">There are many ways to get data from websites, for example with API, forms and etc. But, sometimes the information has not in a centered repository, like
-      this case and get thousands of data manually is no efficient, so, the method to use was <strong>"the web scraping"</strong>, and scrap the data of interest of each website 
-      by project automatically, using tools like <strong>BEAUTIFULSOUP</strong> and <strong>SELENIUM</strong>.
-</p>
+WORKDIR /app
 
-### Steps
-<ul>
-	<li>
-		<p align="justify">
-		     Firts, investigate the main construction company that develop housing projects in Atlantico, watch background of their websites and understand the HTML elements acording with
-         interest data.
-		</p>
- 	</li>
-	<li>
-  	<p align="justify">
-    		After that, create a file.py for each company, create a class with the company name, define the attributes, generally were a list with the endpoints of each individual project
-        and a list_projects where a dictionary with each data scraped is being append to that list. Later, create a method where start to select the <strong>HTML element</strong> either 
-        using tag_name, classes or css_selector, save it in variables like city, location, logo, etc, adding a dictionary and that dictionary was attached in the list_projects. This 
-        process was repeated for each project.
-  	</p>
- 	</li>
-	<li>
-		<p align="justify">Some datas could not be scraped, even some entire projects was not posible to scrap the information due to forbidden permission, so, those projects were added
-        in a file call <strong>"others.py"</strong>. Each data was achieved manually, and the list that content the dictionaries were saved in class OthersPorjects attributes, where
-        each attribute has the project name.
-		</p>
- 	</li>
-	<li>
-		<p align="justify">
-		      Getting projects data, with the library <strong>Openpyxl</strong>, create a file.py call <strong>"dataexcel"</strong>, import each project class, and create a file.xlsx call
-          "projects", later create one sheet by project and start to write each data in its corresponding sheet automatically.
-		</p>
-	 </li>
-	<li>
-		<p align="justify">
-			  Later, analizate the excel file, fill the empty cells and correct wrong fields manually. After that, using <strong> Selenium drive</strong>, start a download the logos and background
-         images using their url's saved in Excel file inf file.png with the method <stron>"img.screenshot_as_png"</stron>, and storage in the folder call <strong>"static"</strong>.  
-		</p>
-	</li>
-  <li>
-		<p align="justify">
-			  Finally, the most important step is to fill those data in database of project <a href="https://github.com/kaacuna20/Website-house-project-searching-">"Website house project searching"</a>
-        , and its API with the method POST that let post a record by project and storage in database, so create a for Loop, using a valid apikey and create a dictionary call "Parameters", start 
-        to make the post request and print the repsponse to know if each record was posted successfully or not.
-		</p>
-	</li>
-</ul>
+RUN mkdir -p /app/saved_data
+
+COPY requirements.txt .
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+RUN apt-get update && apt-get install -y wget unzip && \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt install -y ./google-chrome-stable_current_amd64.deb && \
+    rm google-chrome-stable_current_amd64.deb && \
+    apt-get clean
+
+VOLUME /app/saved_data
+
+CMD ["python", "main.py"]
+```
+### Post Projects Dockerfile
+This Dockerfile sets up the environment for reading the Excel file and sending POST requests.
+```ini
+FROM python:3.11
+
+WORKDIR /app
+
+RUN mkdir -p /app/logs
+
+COPY requirements.txt .
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+VOLUME /app/logs
+
+CMD ["python", "post_project_api.py"]
+```
+### Running with Docker Compose
+If you are using Docker Compose, make sure your containers are connected to the appropriate network (`housefinder_default` in this case).
