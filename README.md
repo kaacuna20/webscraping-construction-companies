@@ -35,7 +35,7 @@ This project is designed to scrape housing project data from various real estate
   - [Posting Data](#Posting-Data)
 - [Docker Setup](#Docker-Setup)
   - [Main Dockerfile](#Main-Dockerfile)
-  - [Running with Docker Compose](#Running-with-Docker-Compose)
+
 
 ## Project Structure
 ```ini
@@ -166,5 +166,4 @@ VOLUME /app/logs
 
 CMD ["python", "post_project_api.py"]
 ```
-### Running with Docker Compose
-If you are using Docker Compose, make sure your containers are connected to the appropriate network (`housefinder_default` in this case).
+
