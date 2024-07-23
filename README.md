@@ -40,74 +40,82 @@ This project is designed to scrape housing project data from various real estate
 ## Project Structure
 ```ini
 Website-house-project-searching/
-├── companies_class/
-│     ├── __init__.py
-│     ├── amarilo_company.py
-│     ├── arenas_inmobiliarias_company.py
-│     ├── bolivar_company.py
-│     ├── colpatria_company.py
-│     ├── conaltura_company.py
-│     ├── marval_company.py
-│     ├── others_company.py
-│     ├── prodesa_company.py
-├── post_projects/
-│     ├── Dockerfile
-│     ├── post_project_api.py
-│     ├── overwrite_projects.xlsx
-│     ├── requirements.txt
-│     ├── .env
-│     ├── track_logs/
-│          ├── logs.py
-├── saved_data
-│     ├── projects.xlsx
-│     ├── log.log
-│     └── static/images/img-projects
-│			├── background/
-│                       └── logos/
-├── Dockerfile
-├── .dockerignore
-├── dataexcel.py
-├── driver_selenium.py
-├── main.py
-├── requirements.txt
+├── web_scrpaing_companies
+|   ├── dataexcel.py
+|   ├── Dockerfile
+|   ├── requirements.txt
+|   ├── track_logs/
+|   |    └── logs.py
+|   ├── saved_documents/
+|   |    ├── projects.xlsx
+|   |    └── log.log
+|   └── companies_class/
+|       ├── __init__.py
+|       ├── amarilo_company.py
+|       ├── arenas_inmobiliarias_company.py
+|       ├── bolivar_company.py
+|       ├── colpatria_company.py
+|       ├── conaltura_company.py
+|       ├── marval_company.py
+|       ├── others_company.py
+|       └── prodesa_company.py
+|
+└── posting_projects_api/
+   ├── .env
+   ├── main.py
+   ├── Dockerfile
+   ├── requirements.txt
+   ├── overwrite_projects.xlsx
+   ├── track_logs/
+   |    └── logs.py
+   └── data/
+   |    ├── log.log
+   |    └── projects.csv
+   └── functions/
+       ├── __init__.py
+       ├── add_coordinates.py
+       ├── convert_to_csv.py
+       ├── bolivar_company.py
+       ├── google_maps_api.py
+       └── post_project_api.py
+
+
+
 ```
 ## Setup
 ### Prerequisites
 Ensure you have Docker installed on your system. For local development, you also need Python 3.11 and pip.
 ### Environment Variables
-Create a `.env` file in the post_projects/ directory with the following content:
+Create a `.env` file in the posting_projects_api/ directory with the following content:
 ```ini
 PUBLIC_API_KEY=your_api_key_here
 ```
 ### Building Docker Images
 1. Build the main scraping image:
 ```ini
-docker build -t web-scraping .
+cd web_scraping_companies
+docker build -t web-scraping-companies .
+
 ```
 2. Build the post request image:
 ```ini
 cd post_projects
-docker build -t post-projects .
-cd ..
+docker build -t posting-projects .
 ```
 ## Running the Project
 ### Scraping Data
 1. Run the scraping container:
 ```ini
-docker run --name web-scraping -v /path/to/local/saved_data:/app/saved_data web-scraping
+docker run --name web-scraping -v /path/to/local/saved_documents:/app/saved_documents web-scraping-companies
 ```
 This will scrape the data and save it to the saved_data/projects.xlsx file in your local directory.
-### Downloading Images
-1. Execute the Selenium script to download images:
-```ini
-python driver_selenium.py
-```
+
 ### Posting Data
 1. Run the POST request container:
 ```ini
-docker run --name post-request --network house_finder_web -v /path/to/local/post_projects/logs:/app/logs post-projects
+docker run --name posting-projects --network house_finder_web -v /path/to/local/data:/app/data posting-projects
 ```
-This will read the corrected Excel file post_projects/overwrite_projects.xlsx and send POST requests to the API.
+This will read the corrected Excel file to convert a file.csv and with that file, send POST requests to the API.
 ## Details
 ### Scraping Companies
 Each company has its own class in the `companies_class` directory, which handles the specifics of scraping data from their respective websites. Each class implements a method that returns a list of dictionaries, each dictionary containing data for a housing project.
@@ -115,21 +123,18 @@ Each company has its own class in the `companies_class` directory, which handles
 ### Saving Data
 The `dataexcel.py` script gathers the data from all the company classes and writes it to an Excel file, saved_data/projects.xlsx.
 
-### Downloading Images
-The `driver_selenium.py` script uses Selenium to download images associated with each project (e.g., logos and background images) and saves them in the saved_data/static/images/img-projects directory.
-
 ### Posting Data
-The `post_project_api.py` script reads data from the `post_projects/overwrite_projects.xlsx` file and sends it as POST requests to the specified API endpoint.
+The `main.py` script reads data from the `overwrite_projects.xlsx` file, first, using the google maps api, get the coordinates of each project writing the name, city of each project and concatenate with `Atlántico`, later, adding those coordinates to each project and later saving this in file.csv, this beacuse at moment to send psot request, this is easier to read and sends it as POST requests to the specified API endpoint.
 
 ## Docker Setup
-### Main Dockerfile
+### Web_scraping_companies Dockerfile
 This Dockerfile sets up the environment for scraping and saving data.
 ```ini
 FROM python:3.11
 
 WORKDIR /app
 
-RUN mkdir -p /app/saved_data
+RUN mkdir -p /app/saved_documents
 
 COPY requirements.txt .
 
@@ -143,18 +148,19 @@ RUN apt-get update && apt-get install -y wget unzip && \
     rm google-chrome-stable_current_amd64.deb && \
     apt-get clean
 
-VOLUME /app/saved_data
+VOLUME /app/saved_documents
 
-CMD ["python", "main.py"]
+
+CMD ["python", "dataexcel.py"]
 ```
-### Post Projects Dockerfile
+### Posting_projects_api Dockerfile
 This Dockerfile sets up the environment for reading the Excel file and sending POST requests.
 ```ini
 FROM python:3.11
 
 WORKDIR /app
 
-RUN mkdir -p /app/logs
+RUN mkdir -p /app/data
 
 COPY requirements.txt .
 
@@ -162,8 +168,8 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-VOLUME /app/logs
+VOLUME /app/data
 
-CMD ["python", "post_project_api.py"]
+CMD ["python", "main.py"]
 ```
 
