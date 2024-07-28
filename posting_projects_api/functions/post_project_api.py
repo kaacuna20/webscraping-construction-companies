@@ -11,9 +11,11 @@ def post_projects(filename: str):
     df = pd.read_csv(filename)
 
     # get a valid apikey and the endpoint to make the 'POST' request
-    API_KEY = os.getenv("PUBLIC_API_KEY")
+    PUBLIC_API_KEY = os.getenv("PUBLIC_API_KEY")
+    SECRET_API_KEY = os.getenv("SECRET_API_KEY")
     headers = {
-        "Api-Key": API_KEY
+        "x-api-public-key": PUBLIC_API_KEY,
+        "x-api-secret-key": SECRET_API_KEY
     }
 
     # This is the server, this can change

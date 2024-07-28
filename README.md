@@ -35,6 +35,7 @@ This project is designed to scrape housing project data from various real estate
   - [Posting Data](#Posting-Data)
 - [Docker Setup](#Docker-Setup)
   - [Main Dockerfile](#Main-Dockerfile)
+- [Diagram](#diagram)
 
 
 ## Project Structure
@@ -173,3 +174,7 @@ VOLUME /app/data
 CMD ["python", "main.py"]
 ```
 
+## Diagram
+- Below is a visual representation of the entire process:
+
+![Diagram](webscraping(2).png)
