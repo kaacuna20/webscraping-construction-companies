@@ -177,4 +177,4 @@ CMD ["python", "main.py"]
 ## Diagram
 - Below is a visual representation of the entire process:
 
-![Diagram](webscraping(2).png)
+![Diagram](#webscraping%20(2).png)
